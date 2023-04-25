@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="login.model.Login">
+	<insert id="UserInsert" useGeneratedKeys="false" parameterType="MyMember">
+		insert into member 
+		values(seq_member.nextval,#{email},#{name},#{pwd, jdbcType=VARCHAR},#{phone},#{flatform, jdbcType=VARCHAR},sysdate,200)
+		<selectKey keyProperty="mnum" resultType="int" order="AFTER">
+			select seq_member.currval from dual
+		</selectKey>
+	</insert>
+	
+	<select id="UserEmail" resultType="int">
+		select count(*) from member
+		where email = #{email}
+	</select>
+	
+	<select id="UserLogin" resultType="MyMember">
+		select *
+		from member
+		where email = #{email}
+	</select>
+	
+	<insert id="CompanyInsert">
+		insert into company
+		values(#{cnum},#{image},#{email},#{pwd},#{phone},0,sysdate)
+	</insert>
+	
+	<select id="CompanyEmail" resultType="int">
+		select count(*) from company
+		where email = #{email}
+	</select>
+	
+	<select id="CompanyLogin" resultType="MyCompany">
+		select * from company
+		where email = #{email}
+	</select>
+	
+	<select id="CompanyCnum" resultType="int">
+		select count(*) from company
+		where cnum = #{cnum}
+	</select>
+	
+</mapper>

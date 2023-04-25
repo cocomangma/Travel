@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="admin.model.Admin">
+
+
+	<select id="GetMemTotalCount" resultType="int">
+		select count(*) from Member
+		<if test="whatColumn=='name'">
+			where name like #{keyword}
+		</if>
+		<if test="whatColumn=='phone'">
+			where phone like #{keyword}
+		</if>
+	</select>
+	
+	<select id="GetMemberList" resultType="admin.model.MemberBean">
+		select * from member
+		<if test="whatColumn == 'phone'">
+		where phone like #{keyword}
+		</if>
+		<if test="whatColumn == 'name'">
+		where name like #{keyword}
+		</if>
+		
+	</select>
+	
+	<select id="GetComTotalCount" resultType="int">
+		select count(*) from company 
+		<if test="whatColumn=='cnum'">
+			where cnum like #{keyword}
+		</if>
+		<if test="whatColumn=='email'">
+			where email like #{keyword}
+		</if>
+	</select>
+	
+	
+	<select id="GetCompanyList" resultType="admin.model.CompanyBean">
+		select * from company 
+		
+		<if test="whatColumn == 'cnum'">
+			where cnum like #{keyword}
+		</if>
+		<if test="whatColumn=='email'">
+			where email like #{keyword}
+		</if>
+		order by approyn
+	</select>
+	
+	<select id="GetAppr" resultType="admin.model.CompanyBean">
+		select * from company 
+		where cnum = #{cnum}
+	</select>
+	
+	<select id="GetCateTotalCount" resultType="int">
+		select count(*) from category
+		<if test="whatColumn=='CANUM'">
+			where CANUM like #{keyword}
+		</if>
+	</select>
+	
+	<select id="GetCateList" resultType="admin.model.CateBean">
+		select * from category 
+		<if test="whatColumn == 'CANUM'">
+		where CANUM like #{keyword} 
+		</if>
+	</select>
+	
+	<select id="GetCate" resultType="admin.model.CateBean">
+		select * from category 
+		where CANUM = #{CANUM}
+	</select>
+	
+	<delete id="DeleteCate">
+  		delete from category where canum = #{canum}
+  	</delete>
+  	
+  	<select id="GetFaTotalCount" resultType="int">
+		select count(*) from facility
+		<if test="whatColumn=='fnum'">
+			where fnum like #{keyword}
+		</if>
+	</select>
+	
+	<select id="GetFaciList" resultType="admin.model.FaciBean">
+		select * from facility 
+		<if test="whatColumn == 'fnum'">
+		where fnum like #{keyword}
+		</if>
+		order by fno
+	</select>
+	
+  	<select id="GetFaci" resultType="admin.model.FaciBean">
+		select * from facility
+		where fno = #{fno}
+	</select>
+	
+	<delete id="DeleteFaci">
+  		delete from facility where fno = #{fno}
+  	</delete>
+	
+	<insert id="InsertCate" parameterType="admin.model.CateBean">
+		insert into category
+		values(CATEGORY_SEQ.nextval,#{caname},#{url},#{cagroup}
+		)
+	</insert>
+	
+	<update id="UpdateCate" parameterType="admin.model.CateBean">
+  		update category set caname=#{caname},url=#{url},cagroup=#{cagroup}
+  		where canum=#{canum}
+  	</update>
+	
+	<insert id="InsertFaci" parameterType="admin.model.FaciBean">
+		insert into facility
+		values(faci_SEQ.nextval,#{fgroup,jdbcType=VARCHAR},#{fnum},#{name}
+		)
+	</insert>
+	
+	<update id="UpdateFaci" parameterType="admin.model.FaciBean">
+  		update facility set fnum=#{fnum},name=#{name},fgroup=#{fgroup}
+  		where fno=#{fno}
+  	</update>
+  	
+  	<update id="UpdateAppr" parameterType="admin.model.CompanyBean">
+  		update company set approyn=1
+  		where cnum=#{cnum}
+  		
+  	</update>
+  	
+  	<delete id="DeleteMember">
+  		delete member
+  		where mnum=#{mnum}
+  	</delete>
+  	
+  	<delete id="DeleteCompany">
+  		delete company
+  		where cnum=#{cnum}
+  	</delete>
+	
+	<select id="GetFacGroupList" resultType="admin.model.FaciBean">
+		select fnum, name from facility where fgroup is null
+	</select>
+	
+	
+	
+	<insert id="InsertAdvertisement" parameterType="admin.model.AdBean">
+		insert into advertisement(adnum,subject,adimage)
+		values(advertisement_seq.nextval,#{subject},#{adimage})
+	</insert>
+	
+	<select id="GetTotalAdvertisementCount" resultType="int">
+		select count(*) from advertisement
+	</select>
+	
+	<select id="GetAdvertisementList" resultType="admin.model.AdBean">
+		select * from advertisement
+		order by adnum desc
+	</select>
+	
+	<select id="GetAdvertisementByAdnum" resultType="admin.model.AdBean">
+		select * from advertisement
+		where adnum = #{adnum}
+	</select>
+	
+	<delete id="DeleteAdvertisementByNnum">
+  		delete advertisement
+  		where adnum=#{adnum}
+  	</delete>
+  	
+  	<update id="UpdateAdvertisementByNnum">
+  		update advertisement set subject = #{subject}, adimage = #{adimage}
+  		where adnum=#{adnum}
+  	</update>
+  	
+  	<select id="GetAdvertisementFirst" resultType="admin.model.AdBean">
+  		select * from (select * from advertisement order by adnum desc) where rownum=1
+  	</select>	
+  	
+  	<select id="GetCateListTotal" resultType="admin.model.CateBean">
+  		select * from category order by to_number(canum)
+  	</select>
+  	
+  	<select id="GetAroundCateList" resultType="admin.model.CateBean">
+  		select canum, caname, '/shop/around/' || to_char(substr(url, 14, 1)) || '.shop' as url
+		from category
+		where canum not in (1)
+  	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

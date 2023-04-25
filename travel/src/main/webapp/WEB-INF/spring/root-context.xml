@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- radis / jedis -->
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+	p:host-name="localhost" p:port="6379" p:password="" />
+	
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+	p:connection-factory-ref="connectionFactory" />
+	
+	<bean id="stringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate"
+	p:connection-factory-ref="connectionFactory" />
+	
+	<!-- oracle -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+		<property name="username" value="jspid"/>
+		<property name="password" value="jsppw"/>
+	</bean>
+	
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="configLocation" value="classpath:/mybatis/SqlMapConfig.xml"/>
+	</bean>
+	
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactoryBean"/>
+	</bean>	
+	
+	<!-- file upload -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="10485760"></property>
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+	
+	<!-- gmail설정 (mailSender bean 생성)-->
+		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"> 
+	     	<property name="host" value="smtp.gmail.com" />
+	  		<property name="port" value="587" />
+	 		<property name="username" value="qrzv13@gmail.com"/> <!-- 자신의 이메일 아이디 -->
+		 	<property name="password" value="mgxsmjbfmayffdmd"/> <!-- 자신의 비밀번호 -->
+			 <!-- 보안연결 TLS과 관련된 설정 -->
+		     <property name="javaMailProperties">
+			    <props>
+			       <prop key="mail.smtp.starttls.enable">true</prop>
+			       <prop key="mail.smtp.auth">true</prop>
+			       <prop key="mail.transport.protocol">smtp</prop>
+			       <prop key="mail.debug">true</prop>
+			       <prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
+				   <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+			    </props>
+		     </property>
+	     </bean>
+</beans>

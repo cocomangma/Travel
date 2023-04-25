@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="comp.model.ResionBean" alias="ResionBean"/>
+		<typeAlias type="comp.model.FacBean" alias="FacBean"/>
+		<typeAlias type="comp.model.AccomBean" alias="AccomBean"/>
+		<typeAlias type="comp.model.RoomBean" alias="RoomBean"/>
+		<typeAlias type="comp.model.CategoryBean" alias="CategoryBean"/>
+		<typeAlias type="shop.model.SearchBean" alias="SearchBean"/>
+		<typeAlias type="shop.model.DetailBean" alias="DetailBean"/>
+		<typeAlias type="shop.model.OrdersBean" alias="OrdersBean"/>
+		<typeAlias type="shop.model.PointBean" alias="PointBean"/>
+		
+		<typeAlias type="login.model.TravelBookBean" alias="MyBook"/>
+		<typeAlias type="login.model.TravelUserBean" alias="MyMember"/>
+		<typeAlias type="login.model.TravelCompanyBean" alias="MyCompany"/>
+		<typeAlias type="mem.model.TravelAccountBean" alias="MyAccount"/>
+		
+		<typeAlias type="board.faq.model.FaqBean" alias="FaqBean"/>
+		
+		<typeAlias type="reply.model.ReplyBean" alias="ReplyBean"/>
+		
+		
+		
+
+	</typeAliases>
+	<mappers>
+		<mapper resource="mybatis/admin.xml"/>
+		<mapper resource="mybatis/board.xml"/>
+		<mapper resource="mybatis/comp.xml"/>
+		<mapper resource="mybatis/login.xml"/>
+		<mapper resource="mybatis/mem.xml"/>
+		<mapper resource="mybatis/shop.xml"/>
+		<mapper resource="mybatis/reply.xml"/>
+	</mappers>
+</configuration>

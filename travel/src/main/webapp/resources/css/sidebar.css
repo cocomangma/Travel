@@ -1,0 +1,37 @@
+@charset "UTF-8";
+a:hover{
+	text-decoration: none;
+}
+
+.sidebar{
+	position:relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: all 0.5s ease;
+    width: 150px;
+    text-align: center;
+}
+
+.sidebar ul li a{
+    display: block;
+    padding: 5px 0px;
+    border-top: 1px solid #d5d5d5;
+    font-size: 12px;
+    position: relative;
+}
+
+.sidebar ul li:last-child{
+    border-bottom: 1px solid #d5d5d5;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active{
+	color: white!important;
+    background:#ff0000;
+}
+
+.sidebar h2 a{
+	font-size: 18px;
+	font-weight: bolder;
+}

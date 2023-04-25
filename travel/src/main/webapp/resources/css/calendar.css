@@ -1,0 +1,36 @@
+.calendar {
+	width: 100%;
+    background: white;
+}
+.calendar__title {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+.calendar__view {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+.calendar__view div {
+    height: 30px;
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    line-height: 30px;
+}
+.calendar__view div:nth-child(7n + 1) {
+    color: red;
+}
+.calendar__view div:nth-child(7n) {
+    color: blue;
+}
+.calendar__date--disabled span {
+    opacity: 0.5;
+}
+.calendar__date--red {
+    background: rgb(255, 173, 173);
+    color: white;
+}
+.calendar__btn {
+    width: 100%;
+}

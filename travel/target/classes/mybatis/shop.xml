@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shop.model.Shop">
+	<select id="Search" resultType="SearchBean">
+		select a.anum, a.name, r.price, a.image, re.sido || ' ' || re.sigungu || ' ' || re.bname || ' ' || re.bname2 as region, av.average, a.latitude as lat, a.longitude as lng from(
+			select a.anum, min(r.price) as price
+			from accom a
+			inner join room r
+			on a.anum = r.anum
+			inner join region re
+			on a.rcode = re.rcode
+			where 1 = 1
+			<if test="fac != null">
+				and a.anum in (
+					with a as (
+						select anum, regexp_substr(fac1, '[^,]+', 1, level) as fac
+						from accom a
+						<![CDATA[connect by level <= regexp_count(fac1, '[^,]+')]]>
+						and prior a.cnum = a.cnum
+						and prior dbms_random.value is not null
+						union all
+						select anum, regexp_substr(fac2, '[^,]+', 1, level)
+						from accom a
+						<![CDATA[connect by level <= regexp_count(fac2, '[^,]+')]]>
+						and prior a.cnum = a.cnum
+						and prior dbms_random.value is not null
+					)
+					select anum
+					from a
+					where fac in (
+						select regexp_substr(#{fac}, '[^,]+', 1, level)
+						from dual
+						<![CDATA[connect by level <= (select regexp_count(#{fac}, '[^,]+') from dual)]]>
+					)
+					group by anum
+					having count(fac) = (select regexp_count(#{fac}, '[^,]+') from dual)				
+				)
+			</if>
+			and r.rnum not in (
+				select rnum
+				from orders
+				<![CDATA[where to_date(startDate, 'yyyyMMdd') <= to_date(#{end}, 'yyyyMMdd')]]>
+				and
+				<![CDATA[to_date(endDate, 'yyyyMMdd') >= to_date(#{start}, 'yyyyMMdd')]]>
+			)
+			<if test="count != 0">
+			<![CDATA[and r.max >= #{count}]]>
+			</if>
+			<if test="price != 0">
+			<![CDATA[and r.price <= #{price}]]>
+			</if>
+			<if test="canum != null">
+			<![CDATA[and a.canum = #{canum}]]>
+			</if>
+			<if test='rcode != null'>
+				and re.rcode like #{rcode}||'%'
+			</if>
+			<if test="lat != null and lng != null">
+				and (	SELECT (
+						6371*ACOS(COS(RADIANS(latitude))
+					    *COS(RADIANS(#{lat}))
+				     	*COS(radians(#{lng})-RADIANS(longitude))
+				        +SIN(RADIANS(latitude))*SIN(RADIANS(#{lat}))))
+						AS DISTANCE
+						FROM accom a2
+						where a2.anum = a.anum
+						<![CDATA[) <= #{around}]]>
+			</if>
+			group by a.anum
+		) z
+		inner join room r
+		on z.price = r.price
+		and z.anum = r.anum
+		inner join accom a
+		on z.anum = a.anum
+		inner join region re
+		on a.rcode = re.rcode
+		left outer join (
+			select a.anum, avg(rating) average
+			from review rev
+			inner join orders o
+			on rev.onum = o.onum
+			inner join room r
+			on o.rnum = r.rnum
+			inner join accom a
+			on r.anum = a.anum
+			group by a.anum	
+		) av
+		on a.anum = av.anum
+		<if test="sort eq 'HIGHPRICE'">
+			order by price desc
+		</if>
+		<if test="sort eq 'LOWPRICE'">
+			order by price
+		</if>
+		<if test="sort eq 'HIT'">
+			order by nvl(av.average, 0) desc
+		</if>
+	</select>
+	
+	<select id="GetOrderInfoByRnum" parameterType="hashmap" resultType="DetailBean">
+		select a.name as aname, 
+		r.name as rname, 
+		re.sido || ' ' || re.sigungu as addr,
+		r.price,
+		<![CDATA[to_char(to_date(#{startDate}, 'yyyyMMdd'), 'MM"월"dd"일"') as startDate,]]>
+		<![CDATA[to_char(to_date(#{endDate}, 'yyyyMMdd'), 'MM"월"dd"일"') as endDate,]]>
+		to_date(#{endDate}, 'yyyyMMdd') - to_date(#{startDate}, 'yyyyMMdd') + 1 as totalDate
+		from room r
+		inner join accom a
+		on r.anum = a.anum
+	    inner join region re
+	    on a.rcode = re.rcode
+		where r.rnum = #{rnum}
+	</select>
+	
+	<insert id="InsertOrders">
+		insert into orders (onum, rnum, mnum, resname, resphone, resnum, accnum, bank, startdate, enddate, odate)
+		values (orders_seq.nextval, #{rnum}, #{mnum}, #{resName}, #{resPhone}, 123456, #{accnum}, #{bank}, #{startDate}, #{endDate}, sysdate)
+	</insert>
+	
+	<select id="GetRoomListByAnum" resultType="RoomBean" parameterType="hashmap">
+		with a as(
+			select rnum, sum(orders) orders
+			from (
+				select r.rnum, case when o.onum is null then 0 else 1 end as orders 
+				from room r
+				left outer join (
+					select *
+					from orders
+					<![CDATA[where to_date(startDate, 'yyyyMMdd') <= to_date(${end}, 'yyyyMMdd')]]>
+					and
+					<![CDATA[to_date(endDate, 'yyyyMMdd') >= to_date(${start}, 'yyyyMMdd')]]>
+				) o
+				on r.rnum = o.rnum
+				where anum = ${anum}
+			)
+			group by rnum, orders
+		)
+		select a.rnum, a.orders, anum, name, info, price, sale, image, max, reg_date
+		from a
+		inner join room r
+		on a.rnum = r.rnum
+	</select>
+	
+	<insert id="InsertPoint">
+		insert into point values (point_seq.nextval, #{mnum}, #{point}, #{chargeType}, sysdate)
+	</insert>
+	
+	<select id="GetTotalPointByMnum" resultType="int">
+		select nvl(sum(p.point), 0) as point
+		from member m
+		inner join point p
+		on m.mnum = p.mnum
+		where m.mnum = #{mnum}
+	</select>
+</mapper>
